@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:newsappflutter/model/headlines_news_model.dart';
 import 'package:newsappflutter/view/category_screen.dart';
+import 'package:newsappflutter/view/news_details_screen.dart';
 import 'package:newsappflutter/view_model/news_view_model.dart';
 
 import '../model/categories_news_model.dart';
@@ -121,110 +122,135 @@ class _HomeViewState extends State<HomeView> {
       body: ListView(
         children: [
           SizedBox(
-            width: width,
-            height: height * 0.55,
-            child: FutureBuilder<HeadlinesNewsModel>(
-              future: newsViewModel.fetchNewsChannelHeadlineApi(newName),
-              builder: (BuildContext context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                  child: SpinKitCircle(size: 50, color: Colors.blue,),
-                );
-                } else {
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: snapshot.data!.articles!.length,
-                    itemBuilder: (context, index) {
-                      DateTime date = DateTime.parse(snapshot.data!.articles![index].publishedAt.toString());
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: width * 0.8,
-                                  height: height* 0.6,
-                                  padding: EdgeInsets.symmetric(horizontal: height*0.01),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: CachedNetworkImage(
-                                      imageUrl: snapshot.data!.articles![index].urlToImage.toString(),
-                                      fit: BoxFit.cover,
-                                      placeholder: (context,url) => Container(child: SpinKitCircle(size: 42, color: Colors.blue,),),
-                                      errorWidget: (context, url, error) => Icon(Icons.error_outline, color: Colors.red,),
-
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 20,
-                                  child: Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15)
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                                      padding: EdgeInsets.all(15),
-                                      alignment: Alignment.bottomCenter,
-                                      height: height * 0.22,
-
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            width: width * 0.7,
-                                            child :Text(
-                                                snapshot.data!.articles![index].title.toString(),
-                                              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
-                                            ),
-                                          ),
-                                          Spacer(),
-                                          Container(
-                                            width: width * 0.7,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Text(
-                                                  snapshot.data!.articles![index].source!.name.toString(),
-                                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-                                                ),
-                                                Text(format.format(date), style: GoogleFonts.poppins(),),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ),
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<CategoriesNewsModel>(
-              future: newsViewModel.fetchCetegoryNewsApi("General"),
-              builder: (BuildContext context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
+              width: width,
+              height: height * 0.55,
+              child: FutureBuilder<HeadlinesNewsModel>(
+                future: newsViewModel.fetchNewsChannelHeadlineApi(newName),
+                builder: (BuildContext context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
                     child: SpinKitCircle(size: 50, color: Colors.blue,),
                   );
-                } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.articles!.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      DateTime date = DateTime.parse(snapshot.data!.articles![index].publishedAt.toString());
-                      return Container(
+                  } else {
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: snapshot.data!.articles!.length,
+                      itemBuilder: (context, index) {
+                        DateTime date = DateTime.parse(snapshot.data!.articles![index].publishedAt.toString());
+                        return InkWell(
+                          onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                                  NewsDetailsScreen(
+                                      source: snapshot.data!.articles![index].source!.name.toString(),
+                                      author: snapshot.data!.articles![index].author.toString(),
+                                      title: snapshot.data!.articles![index].title.toString(),
+                                      imageUrl:snapshot.data!.articles![index].urlToImage.toString(),
+                                      publishAt: snapshot.data!.articles![index].publishedAt.toString(),
+                                      description: snapshot.data!.articles![index].description.toString(),
+                                      content:snapshot.data!.articles![index].content.toString()
+                                  )));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      width: width * 0.9,
+                                      height: height* 0.6,
+                                      padding: EdgeInsets.symmetric(horizontal: height*0.01),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: CachedNetworkImage(
+                                          imageUrl: snapshot.data!.articles![index].urlToImage.toString(),
+                                          fit: BoxFit.cover,
+                                          placeholder: (context,url) => Container(child: SpinKitCircle(size: 42, color: Colors.blue,),),
+                                          errorWidget: (context, url, error) => Icon(Icons.error_outline, color: Colors.red,),
+
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 20,
+                                      child: Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15)
+                                        ),
+                                        child: Container(
+                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                                          padding: EdgeInsets.all(15),
+                                          alignment: Alignment.bottomCenter,
+                                          height: height * 0.22,
+
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                width: width * 0.7,
+                                                child :Text(
+                                                    snapshot.data!.articles![index].title.toString(),
+                                                  style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
+                                                ),
+                                              ),
+                                              Spacer(),
+                                              Container(
+                                                width: width * 0.7,
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      snapshot.data!.articles![index].source!.name.toString(),
+                                                      style: GoogleFonts.poppins(fontWeight: FontWeight.w500, color: Colors.blue),
+                                                    ),
+                                                    Text(format.format(date), style: GoogleFonts.poppins(),),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+          FutureBuilder<CategoriesNewsModel>(
+            future: newsViewModel.fetchCetegoryNewsApi("General"),
+            builder: (BuildContext context, snapshot) {
+              if(snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: SpinKitCircle(size: 50, color: Colors.blue,),
+                );
+              } else {
+                return ListView.builder(
+                  itemCount: snapshot.data!.articles!.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    DateTime date = DateTime.parse(snapshot.data!.articles![index].publishedAt.toString());
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                            NewsDetailsScreen(
+                                source: snapshot.data!.articles![index].source!.name.toString(),
+                                author: snapshot.data!.articles![index].author.toString(),
+                                title: snapshot.data!.articles![index].title.toString(),
+                                imageUrl: snapshot.data!.articles![index].urlToImage.toString(),
+                                publishAt: snapshot.data!.articles![index].publishedAt.toString(),
+                                description: snapshot.data!.articles![index].description.toString(),
+                                content: snapshot.data!.articles![index].content.toString()
+                            )));
+                      },
+                      child: Container(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
@@ -270,7 +296,8 @@ class _HomeViewState extends State<HomeView> {
                                               // maxLines: 2,
                                               style: GoogleFonts.poppins(
                                                   fontSize: 14,
-                                                  fontWeight: FontWeight.w600
+                                                  fontWeight: FontWeight.w600,
+                                                color: Colors.blue
                                               ),
                                             ),
                                             Text(format.format(date),
@@ -288,12 +315,12 @@ class _HomeViewState extends State<HomeView> {
                             ],
                           ),
                         ),
-                      );
-                    },
-                  );
-                }
-              },
-            ),
+                      ),
+                    );
+                  },
+                );
+              }
+            },
           ),
         ],
       ),
